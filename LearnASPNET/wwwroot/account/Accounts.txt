@@ -1,0 +1,4 @@
+/Login 	Password	Role	 FullName
+Admin	1234	admin	Администратор
+Test	1235	user	Тестовый пользователь
+EShevchenko	amek	admin	Шевченко Е.Н.

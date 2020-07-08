@@ -1,0 +1,49 @@
+﻿@model WellEquipment.Models.EquipInfo
+<div>
+    <div id="move_pages">
+<button id="btn_page_prev" onclick="btn_page_prev_click()" data-page="@Model.Page">Назад</button>
+<label>Показано @Model.MinPos-@Model.MaxPos из @Model.MaxValues</label>
+<button id="btn_page_forward" onclick="btn_page_forward_click()" data-page="@Model.Page">Вперёд</button>
+    </div>
+<table class="align-middle table table-striped table-bordered table-hover table-sm">
+    
+    <thead class="thead-dark" id="equip_table"> 
+        <tr>
+            <th>Номер</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Title]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Type]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</th">
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Self_Number]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[ WellEquipment.Models.Values.Start_Cost]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Current_Cost]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Maker]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Invetory_Number]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Parameters]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Info]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.LocationTime]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Equipments.Count; i++)
+        {
+            <tr>
+                <th><label for:="@(i+1)">@(i + 1)</label>
+                <input type="checkbox" name="@(i+1)" data-id="@Model.Equipments[i][WellEquipment.Models.Values.ID]"/>
+                </th>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Title]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Type]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Location]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Self_Number]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Start_Cost]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Current_Cost]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Maker]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Invetory_Number]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Parameters]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.Info]</td>
+                <td>@Model.Equipments[i][WellEquipment.Models.Values.LocationTime]</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+

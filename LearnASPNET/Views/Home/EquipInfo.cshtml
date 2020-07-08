@@ -1,0 +1,266 @@
+﻿@model WellEquipment.Models.Filters
+
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <form method="post" id="filters" class="form-horizontal" role="form" action="EquipInfo">
+        <h2>Фильтры</h2>
+        <div class="accordion" id="accordionExample">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Тип оборудования
+                        </button>
+                        <input type="checkbox" data-type_type="all" checked /><!--name="type_all"-->
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body">
+                        
+                        @foreach (WellEquipment.Models.FilterGroup group in Model.Types_Filters.Values)
+                        {
+                            <details>
+                                <summary>
+                                    <label for="@group.StringID">@group.Name</label>
+                                    @if (group.Selected)
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-type_type="group" checked />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-type_type="group"/>
+                                    }
+                                </summary>
+                                <ul>
+                                    @foreach (WellEquipment.Models.OneFilter s in group.Cur_Filters.Values)
+                                    {
+                                    <li style="display:inline;">
+                                        <label for="@s.StringID">@s.Name</label>
+                                        @if (s.Selected)
+                                        {
+                                            <input type="checkbox" name="@s.StringID" data-type_type="single" data-type_name="@group.StringID" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="@s.StringID" data-type_type="single" data-type_name="@group.StringID"/>
+                                        }
+                                    </li>
+                                    }
+                                </ul>
+                            </details>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                        <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Расположение
+                        </button>
+                        <input type="checkbox" data-loc_type="all" checked /><!--name="loc_all"-->
+
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                    <div class="card-body">
+                        @foreach (WellEquipment.Models.FilterGroup group in Model.Locations_Filters.Values)
+                        {
+                            <details>
+                                <summary>
+                                    <label for="@group.StringID">@group.Name</label>
+                                    @if (group.Selected)
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-loc_type="group" checked />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-loc_type="group" />
+                                    }
+                                </summary>
+                                <ul>
+                                    @foreach (WellEquipment.Models.OneFilter s in group.Cur_Filters.Values)
+                                    {
+                                        <li style="display:inline;">
+                                            <label for="@s.StringID">@s.Name</label>
+                                            @if (s.Selected)
+                                            {
+                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-type_name="@group.StringID" checked />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-type_name="@group.StringID" />
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </details>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Производитель
+                        </button>
+                        <input type="checkbox" data-maker_type="all" checked /><!--name="loc_all"-->
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                    <div class="card-body">
+                        @foreach (WellEquipment.Models.FilterGroup group in Model.Makers_Filters.Values)
+                        {
+                            <details>
+                                <summary>
+                                    <label for="@group.StringID">@group.Name</label>
+                                    @if (group.Selected)
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-maker_type="group" checked />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" name="@group.StringID" data-maker_type="group" />
+                                    }
+                                </summary>
+                                <ul>
+                                    @foreach (WellEquipment.Models.OneFilter s in group.Cur_Filters.Values)
+                                    {
+                                        <li style="display:inline;">
+                                            <label for="@s.StringID">@s.Name</label>
+                                            @if (s.Selected)
+                                            {
+                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-type_name="@group.StringID" checked />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-type_name="@group.StringID" />
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </details>
+                        }
+                    </div>
+            </div>
+        </div>
+           
+            <input type="button" id="filt_send" value="Применить"/>
+            </div>
+</form>
+<h3>Оборудование</h3>
+<div id="equiptable"></div>
+<button id="change_button" onclick="change_button_click()">Изменить</button>
+<button id="move_button" onclick="move_button_click()">Переместить</button>
+<button id="history_button" onclick="history_button_click()">История</button>
+<script type="text/javascript">
+    //Включает/выключает все фильтры скважин при клике на типе оборудования
+    $("input[data-type_type='group']").click(function () {
+        var name = this.name;
+        if ($(this).is(':checked')) {
+            $("input[data-type_name='"+name+"']").prop('checked', true);
+        }
+        else {
+            $("input[data-type_name='"+name+"']" ).prop('checked', false);
+        }
+    });
+     //Включает/выключает все фильтры типа оборудования, при клике на общих фильтрах
+    $("input[data-type_type='all']").click(function () {
+        if ($(this).is(':checked')) {
+            $("input[data-type_type='single'], input[data-type_type='group'").prop('checked', true);
+        }
+        else {
+            $("input[data-type_type='single'], input[data-type_type='group'").prop('checked', false);
+        }
+    });
+    //Включает/выключает все фильтры скважин при клике на месторождении
+    $("input[data-loc_type='group']").click(function () {
+        var name = this.name;
+        if ($(this).is(':checked')) {
+            $("input[data-loc_name='"+name+"']").prop('checked', true);
+        }
+        else {
+            $("input[data-loc_name='"+name+"']" ).prop('checked', false);
+        }
+    });
+    //Включает/выключает все фильтры расположений, при клике на общих фильтрах
+    $("input[data-loc_type='all']").click(function () {
+        if ($(this).is(':checked')) {
+            $("input[data-loc_type='single'], input[data-loc_type='group'").prop('checked', true);
+        }
+        else {
+            $("input[data-loc_type='single'], input[data-loc_type='group'").prop('checked', false);
+        }
+    });
+     //Включает/выключает все фильтры производителей, при клике на общих фильтрах
+    $("input[data-maker_type='all']").click(function () {
+        if ($(this).is(':checked')) {
+            $("input[data-maker_type='single'], input[data-maker_type='group'").prop('checked', true);
+        }
+        else {
+            $("input[data-maker_type='single'], input[data-maker_type='group'").prop('checked', false);
+        }
+    });
+    //Включает/выключает все фильтры производителей при клике на группе
+    $("input[data-maker_type='group']").click(function () {
+        var name = this.name;
+        if ($(this).is(':checked')) {
+            $("input[data-maker_name='"+name+"']").prop('checked', true);
+        }
+        else {
+            $("input[data-maker_name='"+name+"']" ).prop('checked', false);
+        }
+    });
+    
+    //загружает оборудования, при клике по кнопке фильтрации
+    $('#filt_send').click(function () {
+        $.post("/Home/EquipInfoGetFiltredValue", $("#filters").serialize(), function (data) {
+            $('#equiptable').html(data);
+        });
+    });
+    function change_button_click() {
+        var list = $('input[data-id]:checked');
+        if (list.length == 0) { alert('Ни один элемент не выбран'); return; }
+        else if (list.length > 1) { alert('Выбрано больше одного элемента'); return; }
+        document.location.replace('/Home/ChangeEquipment/?id='+list.attr('data-id'),"");
+    }
+    function move_button_click() {
+        var list = $('input[data-id]:checked');
+        if (list.length == 0) { alert('Ни один элемент не выбран'); return;}
+    var query = "";
+    for (var i = 0; i < list.length; i++) { query += list.eq(i).attr('data-id'); if (i < list.length - 1) query += ','; }
+    document.location.replace('/Home/MoveEquipment/?idlist=' + query, "");
+    }
+    function history_button_click() {
+        var list = $('input[data-id]:checked');
+        if (list.length == 0) { alert('Ни один элемент не выбран'); return; }
+        else if (list.length > 1) { alert('Выбрано больше одного элемента'); return; }
+        document.location.replace('/Home/HistoryEquipment/?id='+list.attr('data-id'),"");
+    }
+    //Загружает оборудования при загрузке страницы
+    $(document).ready(function () {
+        $.post("/Home/EquipInfoGetFiltredValue", $("#filters").serialize(), function (data) {
+            $('#equiptable').html(data);
+        });
+    });
+    //загружает следующую страницу оборудования
+    function btn_page_forward_click() {
+        var array = $("#filters").serialize();
+        array = "Page"+$('#btn_page_forward').attr('data-page')+"=0&"+array;
+        $.post("/Home/EquipmentInfoGetNextPage", array, function (data) {
+            $('#equiptable').html(data);
+        });
+    }
+    //загружает предыдущую страницу оборудования
+     function btn_page_prev_click() {
+        var array = $("#filters").serialize();
+        array = "Page"+$('#btn_page_prev').attr('data-page')+"=0&"+array;
+        $.post("/Home/EquipmentInfoGetPrevPage", array, function (data) {
+            $('#equiptable').html(data);
+        });
+    }
+</script>

@@ -1,0 +1,70 @@
+﻿@model WellEquipment.ViewModels.LoginModel
+
+<!Doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>СУО - Волгодеминойл</title>
+   <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <script src="~/jquery-3.4.1.min.js"></script>
+    <script src="~/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row flex-xl-nowrap">
+            <main class="col-md-12 col-xl-12 py-md-3 pl-md-5 bd-content" role="main">
+                <div class="row">
+                    <div class="col-5"></div>
+                    <div class="col-2">
+                        <img src="~/logo.png" style="width:inherit" />
+                    </div>
+                    <div class="col-5"></div>
+                </div>
+                <div class="row">
+                    <br><br><br><br>
+                    <div class="col"></div>
+                    <div class="col align-self-center">
+                        <h2 style="text-align:center; color:gray">Система учёта оборудования</h2>
+                    </div>
+                    <div class="col"></div>
+                </div>
+                <div class="row">
+                    <div class="col"></div>
+                    <div class="col">
+                        <form asp-action="Login" asp-controller="Account" asp-antiforgery="true">
+                            <div class="validation" asp-validation-summary="ModelOnly" />
+                            <div class="form-group" style="text-align:center; font-size:24px">
+                                <label asp-for="Login">Введите Логин</label>
+                                <input type="text" asp-for="Login" />
+                                <span asp-validation-for="Login" />
+                            </div>
+                            <div class="form-group" style="text-align:center; font-size:24px">
+                                <label asp-for="Password">Введите пароль</label>
+                                <input asp-for="Password" />
+                                <span asp-validation-for="Password" />
+                            </div>
+                            <div class="form-group"  style="padding-left:320px; padding-top:20px">
+                                <input type="submit" value="Войти" class="btn btn-outline-dark" style="margin-left" />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col"></div>
+                </div>
+
+                <hr />
+                <footer>
+                    <div class="row justify-content-sm-center">
+                    <p> 2020 Волгодеминойл</p>
+                        </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+

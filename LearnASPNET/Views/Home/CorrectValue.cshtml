@@ -1,0 +1,114 @@
+﻿@model List<WellEquipment.Models.Parameter>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <input type="hidden" id="correct_id" value="@ViewData["ID"]" />
+    <h3>Исправление параметров</h3>
+    <table class="align-middle table table-striped table-bordered table-hover table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>Параметр</th>
+                <th>Дата</th>
+                <th>Значение</th>
+                <th>Изменить</th>
+                <th>Удалить</th>
+            </tr>
+        </thead>
+        <tbody>
+                @for (int i=0;i<Model.Count; i++)
+                {
+                    <tr>
+                        <th>@Model[i].TypeText</th>
+                        <td>
+                            <input type="date" value="@Model[i].time.ToString("yyyy-MM-dd")" class="form-control" data-correct_date="@i"/>
+                        </td>
+                        <td>
+                            @if (Model[i].Type == WellEquipment.Models.Values.Location ||
+                           Model[i].Type == WellEquipment.Models.Values.Type ||
+                           Model[i].Type == WellEquipment.Models.Values.Maker)
+                            {
+                                SortedList<string, List<string>> array;
+                                if (Model[i].Type == WellEquipment.Models.Values.Location)
+                                    array = WellEquipment.Models.Filters.StartFilters.Locations;
+                                else if (Model[i].Type == WellEquipment.Models.Values.Type)
+                                    array = WellEquipment.Models.Filters.StartFilters.Types;
+                                else
+                                    array = WellEquipment.Models.Filters.StartFilters.Makers;
+                            <select class="form-control" data-correct_val="@i">
+                                @foreach (KeyValuePair<string, List<string>> pair in array)
+                                {
+                                    <optgroup label="@pair.Key">
+                                        @foreach (string s in pair.Value)
+                                        {
+                                            @if (s == Model[i].value)
+                                            {
+                                                <option value="@s" selected>@s</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@s">@s</option>
+                                            }
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                            }
+                            else if (Model[i].Type == WellEquipment.Models.Values.Info ||
+                                Model[i].Type == WellEquipment.Models.Values.Parameters)
+                            {
+                                <textarea value="@Model[i].value" class="form-control" data-correct_val="@i">@Model[i].value</textarea>
+                            }
+                            else
+                            {
+                                <input type="text" value="@Model[i].value" class="form-control" data-correct_val="@i"/>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" data-correct_type="change" data-correct_id="@i">Изменить</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" data-correct_type="delete" data-correct_id="@i">Удалить</button>
+                        </td>
+                         
+                    </tr>
+                }
+        </tbody>
+    </table>
+<script>
+    $(function() {
+        $("button[data-correct_type='change']").bind('click', function () {
+            var pos = $(this).attr('data-correct_id');
+            var id = $('#correct_id').attr('value');
+            var date = $("[data-correct_date='" + pos + "']")[0].value;
+            var valelement = $("[data-correct_val='" + pos + "']");
+            var val = valelement[0].value;
+            if (val == null || val == "") {
+                var index = valelement[0].options.selectedIndex;
+                val = valelement[0].options[index].value;
+            }
+                $.post("/Home/CorrectValue", { 'id': id, 'pos': pos, 'date': date, 'val': val }, function (data) {
+                    if (data != "")
+                        alert(data);
+                    else {
+                        alert("Откорректировано");
+                        document.location.replace('/Home/CorrectValue/?id=' + id, "");
+                        
+                    }
+            });
+        });
+    });
+    $(function () {
+        $("button[data-correct_type='delete']").bind('click', function () {
+            var pos = $(this).attr('data-correct_id');
+            var id = $('#correct_id').attr('value');
+             $.post("/Home/DeleteValue", { 'id': id, 'pos': pos}, function (data) {
+                 if (data != "")
+                     alert(data);
+                    else {
+                        document.location.replace('/Home/CorrectValue/?id=' + id, "");
+                    }
+            });
+        });
+    });
+</script>
+

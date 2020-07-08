@@ -1,0 +1,157 @@
+﻿@model SortedList<WellEquipment.Models.Values, string>
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>Изменение параметров</h3>
+<form id="Change_form" onreset="resetform()">
+    <div class="form-group">
+        <input type="hidden" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.ID]" value="@Model[WellEquipment.Models.Values.ID]"/>
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.LocationTime]" class="col-md-12 control-label">Дата</label>
+        <input type="date" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.LocationTime]" class="form-control" id="Add_date" />
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Title]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Title]</label>
+        <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Title]" class="form-control" id="EquipName" data-base="@Model[WellEquipment.Models.Values.Title]"/>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Type]</label>
+        <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="form-control" id="EquipType" data-base="@Model[WellEquipment.Models.Values.Type]">
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Types)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        @if (s == Model[WellEquipment.Models.Values.Type])
+                        {
+                            <option value="@s" selected>@s</option>
+                        }
+                        else
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    }
+                </optgroup>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</label>
+        <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="form-control" id="EquipLocation" data-base="@Model[WellEquipment.Models.Values.Location]">
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Locations)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        @if (s == Model[WellEquipment.Models.Values.Location])
+                        {
+                            <option value="@s" selected>@s</option>
+                        }
+                        else
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    }
+                </optgroup>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Self_Number]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Self_Number]</label>
+        <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Self_Number]" class="form-control" id="EquipSelf_Number" data-base="@Model[WellEquipment.Models.Values.Self_Number]"/>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Start_Cost]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Start_Cost]</label>
+        <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Start_Cost]" class="form-control" id="Start_Cost" data-base="@Model[WellEquipment.Models.Values.Start_Cost]" />
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Current_Cost]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Current_Cost]</label>
+        <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Current_Cost]" class="form-control" id="Current_Cost" data-base="@Model[WellEquipment.Models.Values.Current_Cost]"/>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Maker]</label>
+        <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="form-control" id="EquipMaker" data-base="@Model[WellEquipment.Models.Values.Maker]">
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Makers)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        @if (s == Model[WellEquipment.Models.Values.Maker])
+                        {
+                            <option value="@s" selected>@s</option>
+                        }
+                        else
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    }
+                </optgroup>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Invetory_Number]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Invetory_Number]</label>
+        <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Invetory_Number]" class="form-control" id="Inventory_Number" data-base="@Model[WellEquipment.Models.Values.Invetory_Number]"/>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Parameters]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Parameters]</label>
+        <textarea name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Parameters]" class="form-control" rows="3" id="EquipParameters" data-base="@Model[WellEquipment.Models.Values.Parameters]"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Info]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Info]</label>
+        <textarea name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Info]" class="form-control" rows="3" id="EquipInfo" data-base="@Model[WellEquipment.Models.Values.Info]"></textarea>
+    </div>
+    <div class="form-group">
+        <button type="button" id="button_Accept">Внести изменения</button>
+        <button type="button" id="button_Reset" onclick="resetform()">Сбросить данные</button>
+    </div>
+</form>
+
+<script>
+    $('#Add_date').change(function () {
+        //alert($(this).val());
+        if ($(this).val() == '') {
+            setcurdate();
+        }
+    });
+    function setcurdate() {
+        var date = new Date();
+        var month = date.getMonth() + 1;
+        var stringmonth = month;
+        if (month < 9) stringmonth = '0' + month;
+        $('#Add_date').val(date.getFullYear()+'-'+stringmonth+'-'+date.getDate());
+    }
+    function resetform() {
+        setcurdate();
+        $('#EquipName').val($('#EquipName').attr('data-base'));
+        $("#EquipType option[selected]").removeAttr('selected');
+        var basetype = $('#EquipType').attr('data-base');
+        $( "#EquipType option[value='"+basetype+"']").attr('selected', 'selected');
+        $('#EquipLocation option[selected]').removeAttr('selected');
+        var baselocation = $('#EquipLocation').attr('data-base');
+        $("#EquipLocation option[value='" + baselocation + "']").attr('selected', 'selected');
+        $('#EquipSelf_Number').val($('#EquipSelf_Number').attr('data-base'));
+        $('#Start_Cost').val($('#Start_Cost').attr('data-base'));
+        $('#Current_Cost').val($('#Current_Cost').attr('data-base'));
+        $('#EquipMaker option[selected]').removeAttr('selected');
+        var basemaker = $('#EquipMaker').attr('data-base');
+        $("#EquipMaker option[value='" + basemaker + "']").attr('selected', 'selected');
+        $('#Inventory_Number').val($('#Inventory_Number').attr('data-base'));
+        $('#EquipParameters').val($('#EquipParameters').attr('data-base'));
+        $('#EquipInfo').val($('#EquipInfo').attr('data-base'));
+    }
+    $(document).ready(function () {
+        resetform();
+    });
+    $('#button_Accept').click(function () {
+        $.post("ChangeEquipment", $("#Change_form").serialize(), function (data) {
+            if (data != "") {
+                alert(data);
+                return;
+            }
+            document.location.replace('/Home/EquipInfo/',"");
+           
+        });
+    });
+</script>
+    

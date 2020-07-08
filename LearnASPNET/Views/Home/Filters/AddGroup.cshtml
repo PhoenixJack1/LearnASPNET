@@ -1,0 +1,25 @@
+﻿@model string[]
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>@Model[0]</h3>
+<div>
+    <label for="FieldName" class="col-md-12">@Model[1]</label>
+    <Input type="text" name="FieldName" class="form-control" id="group_value"/>
+</div>
+<input type="hidden" value="@Model[2]" id="group_name"/>
+<div class="col-md-12">
+    <button type="button" onclick="create_field_click()">Добавить</button>
+</div>
+<script>
+    function create_field_click() {
+        $.post('/Home/FilterAddGroup', {'groupname':$('#group_name').val(),  'value': $('#group_value').val() }, function (data) {
+            if (data != "") {
+                alert(data);
+            }
+            else
+                document.location.replace('/Home/EquipInfo/', "");
+        });
+    }
+</script>

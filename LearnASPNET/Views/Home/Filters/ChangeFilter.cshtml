@@ -1,0 +1,66 @@
+﻿@model string[]
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>@Model[0]</h3>
+<div class="form-group">
+    <label for="oldfiltername" class="col-md-12 control-label">@Model[1]</label>
+    <select name="oldfiltername" class="form-control" id="oldfiltername">
+        @if (Model[3] == "well")
+        {
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Locations)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </optgroup>
+            }
+        }
+        @if (Model[3] == "type")
+        {
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Types)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </optgroup>
+            }
+        }
+        @if (Model[3] == "maker")
+        {
+            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Makers)
+            {
+                <optgroup label="@pair.Key">
+                    @foreach (string s in pair.Value)
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </optgroup>
+            }
+        }
+    </select>
+</div>
+<div>
+    <label for="newfiltername" class="col-md-12">@Model[2]</label>
+    <Input type="text" name="newfiltername" class="form-control" id="newfiltername" />
+</div>
+<input type="hidden" value="@Model[3]" id="typename" />
+<div class="col-md-12">
+    <button type="button" onclick="change_filter_click()">Изменить</button>
+</div>
+<script>
+    function change_filter_click() {
+        $.post('/Home/ChangeFilter', { 'oldfiltername': $("#oldfiltername").val(), 'newfiltername': $('#newfiltername').val(), 'type': $('#typename').val() }, function (data) {
+            if (data != "") {
+                alert(data);
+            }
+            else
+                document.location.replace('/Home/EquipInfo/', "");
+        });
+    }
+</script>

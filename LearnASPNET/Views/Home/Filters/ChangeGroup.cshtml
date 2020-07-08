@@ -1,0 +1,34 @@
+﻿@model List<string>
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>@Model[Model.Count - 4]</h3>
+<div class="form-group">
+    <label for="oldgroupname" class="col-md-12 control-label">@Model[Model.Count - 3]</label>
+    <select name="oldgroupname" class="form-control" id="oldgroupname">
+        @for (var i = 0; i < Model.Count - 4; i++)
+        {
+            <option value="@Model[i]">@Model[i]</option>
+        }
+    </select>
+</div>
+<div>
+    <label for="newgroupname" class="col-md-12">@Model[Model.Count - 2]</label>
+    <Input type="text" name="newgroupname" class="form-control" id="newgroupname" />
+</div>
+<input type="hidden" value="@Model[Model.Count-1]" id="typename" />
+<div class="col-md-12">
+    <button type="button" onclick="change_group_click()">Изменить</button>
+</div>
+<script>
+    function change_group_click() {
+        $.post('/Home/ChangeGroup', { 'oldgroupname': $("#oldgroupname").val(), 'newgroupname': $('#newgroupname').val(), 'type': $('#typename').val() }, function (data) {
+            if (data != "") {
+                alert(data);
+            }
+            else
+                document.location.replace('/Home/EquipInfo/', "");
+        });
+    }
+</script>

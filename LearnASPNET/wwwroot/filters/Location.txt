@@ -1,0 +1,77 @@
+2
+GROUP 0 Прочее
+0 START На складе
+1 В ремонте
+ENDGROUP
+GROUP 1 Памятно-Сасовское месторождение
+0 Plat 2
+1 Plat 3
+2 Plat 5
+3 Plat 6
+4 Plat 8
+5 Plat 11
+6 Plat 12
+7 Plat 13
+8 Plat 14
+9 Plat 14-01
+10 Plat 14-02
+11 Plat 15
+12 Plat 25
+ENDGROUP
+GROUP 2 Прибортовое месторождение
+0 Plat 9
+1 Plat 10
+2 Plat 17
+3 Plat 20
+ENDGROUP
+GROUP 3 Немировское месторождение
+0 Plat 19
+1 Plat 26
+2 Plat 27
+3 Plat 29
+4 Plat 42
+ENDGROUP
+GROUP 4 Авиловское месторождение
+0 Avil 6
+1 Avil 7
+2 Avil 8
+3 Avil 111
+4 Avil 112
+5 Avil 113
+6 Avil 114
+7 Avil 117
+ENDGROUP
+GROUP 5 Высоцкое месторождение
+0 Plat 4
+1 Plat 44
+2 Plat 55
+ENDGROUP
+GROUP 6 Доброе месторождение
+0 Avil 10
+1 Avil 32
+2 Avil 33
+ENDGROUP
+GROUP 7 Заповедное месторождени
+0 Avil 15
+ENDGROUP
+GROUP 8 Нижнедобринское месторождение
+0 Plat 66
+1 Plat 70
+2 Plat 71
+ENDGROUP
+GROUP 9 Лосиное месторождение
+0 Plat 72
+ENDGROUP
+GROUP 10 Заливное месторождение
+0 Plat 81
+ENDGROUP
+GROUP 11 Лесное месторождение
+0 Plat 61
+ENDGROUP
+GROUP 12 Молодёжное месторождение
+0 Avil 11
+1 Avil 12
+ENDGROUP
+GROUP 13 Новейшее месторождение
+0 Plat 187
+ENDGROUP

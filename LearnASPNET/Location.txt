@@ -1,0 +1,76 @@
+GROUP Памятно-Сасовское месторождение
+Plat 2
+Plat 3
+Plat 5
+Plat 6
+Plat 8
+Plat 11
+Plat 12
+Plat 13
+Plat 14
+Plat 14-01
+Plat 14-02
+Plat 15
+Plat 25
+ENDGROUP
+GROUP Прибортовое месторождение
+Plat 9
+Plat 10
+Plat 17
+Plat 20
+ENDGROUP
+GROUP Немировское месторождение
+Plat 19
+Plat 26
+Plat 27
+Plat 29
+Plat 42
+ENDGROUP
+GROUP Авиловское месторождение
+Avil 6
+Avil 7
+Avil 8
+Avil 111
+Avil 112
+Avil 113
+Avil 114
+Avil 117
+ENDGROUP
+GROUP Высоцкое месторождение
+Plat 4
+Plat 44
+Plat 55
+ENDGROUP
+GROUP Доброе месторождение
+Avil 10
+Avil 32
+Avil 33
+ENDGROUP
+GROUP Заповедное месторождени
+Avil 15
+ENDGROUP
+GROUP Нижнедобринское месторождение
+Plat 66
+Plat 70
+Plat 71
+ENDGROUP
+GROUP Лосиное месторождение
+Plat 72
+ENDGROUP
+GROUP Заливное месторождение
+Plat 81
+ENDGROUP
+GROUP Лесное месторождение
+Plat 61
+ENDGROUP
+GROUP Молодёжное месторождение
+Avil 11
+Avil 12
+ENDGROUP
+GROUP Прочее
+START На складе
+В ремонте
+ENDGROUP
+GROUP Новейшее месторождение
+Plat 187
+ENDGROUP

@@ -1,0 +1,79 @@
+﻿<!Doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <!--<link rel="stylesheet" href="~/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />-->
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <style>
+        ul#hormenu li {
+            display: inline;
+        }
+        thead#equip_table th{
+            vertical-align: middle;
+        }
+
+    </style>
+    <script src="~/jquery-3.4.1.min.js"></script>
+    <script src="~/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+</head>
+    <body>
+        <div class="container-fluid">
+            <div class="row flex-xl-nowrap">
+        <div class="col-md-2 col-xl-2">
+            <nav class="bd-links">
+                <!--<div class="bd-toc-item"><a href="~/Home/Index">Главная</a></div>-->
+                <div class="bd-toc-item"><a href="~/Home/EquipInfo">Список оборудования</a></div>
+                <div class="bd-toc-item"><a href="~/Home/AddEquipment">Добавить оборудование</a></div>
+                <div class="bd-toc-item">История скважины</div>
+                <div class="accordion" id="accordionFilter">
+                    <div class="card">
+                        <div class="card-header" id="headingFilter">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseFilter" aria-expanded="true" aria-controls="collapseFilter">
+                                    Корректировка заданных параметров
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseFilter" class="collapse" aria-labelledby="headingFilter" data-parent="#accordionFilter">
+                            <div class="card-body">
+                                <p> <a href="~/Home/FilterAddGroup/?groupname=well">Добавить месторождение</a></p>
+                                <p><a href="~/Home/FilterAddGroup/?groupname=type">Добавить группу оборудования</a></p>
+                                <p><a href="~/Home/FilterAddGroup/?groupname=maker">Добавить группу производителей</a></p>
+                                <p><a href="~/Home/ChangeGroup/?groupname=well">Изменить месторождение</a></p>
+                                <p><a href="~/Home/ChangeGroup/?groupname=type">Изменить группу оборудования</a></p>
+                                <p><a href="~/Home/ChangeGroup/?groupname=maker">Изменить группу производителей</a></p>
+                               <!-- <p><a href="~/Home/RemoveGroup/?groupname=well">Удалить месторождение</a></p>
+                                <p><a href="~/Home/RemoveGroup/?groupname=type">Удалить группу оборудования</a></p>
+                                <p><a href="~/Home/RemoveGroup/?groupname=maker">Удалить группу производителей</a></p>-->
+                                <p><a href="~/Home/AddFilter/?groupname=well">Добавить скважину</a></p>
+                                <p><a href="~/Home/AddFilter/?groupname=type">Добавить тип оборудования</a></p>
+                                <p><a href="~/Home/AddFilter/?groupname=maker">Добавить производителя</a></p>
+                                <p><a href="~/Home/ChangeFilter/?type=well">Изменить название скважины</a></p>
+                                <p><a href="~/Home/ChangeFilter/?type=type">Изменить название оборудования</a></p>
+                                <p><a href="~/Home/ChangeFilter/?type=maker">Изменить название производителя</a></p>
+                                <!--<p><a href="~/Home/RemoveFilter/?type=well">Удалить скважину</a></p>
+                                <p><a href="~/Home/RemoveFilter/?type=type">Удалить оборудование</a></p>
+                                <p><a href="~/Home/RemoveFilter/?type=maker">Удалить производителя</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                    
+            </nav>
+        </div>
+       <main class="col-md-10 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+        @RenderBody()
+       <hr/>
+       <footer>
+           <p> 2020 Волгодеминойл</p>
+       </footer>
+       </main>
+                </div>
+            </div>
+         
+    </body>
+</html>

@@ -1,0 +1,134 @@
+﻿@model SortedList<DateTime, SortedList<WellEquipment.Models.Values, string>>
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>История оборудования</h3>
+<input type="hidden" id="history_id" value="@ViewData["ID"]"/>
+<table class="align-middle table table-striped table-bordered table-hover table-sm">
+
+    <thead class="thead-dark" id="equip_table">
+        <tr>
+            <th>Дата</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Title]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Type]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Self_Number]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Start_Cost]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Current_Cost]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Maker]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Invetory_Number]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Parameters]</th>
+            <th>@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Info]</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Текущие</th>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Title]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Type]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Location]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Self_Number]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Start_Cost]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Current_Cost]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Maker]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Invetory_Number]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Parameters]</td>
+            <td>@Model.Values[Model.Count - 1][WellEquipment.Models.Values.Info]</td>
+        </tr>
+        @for (int i = Model.Count - 2; i >= 0; i--)
+        {
+            <tr>
+                <th>@Model.Keys[i].ToShortDateString()</th>
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Title))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Title]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Type))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Type]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Location))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Location]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Self_Number))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Self_Number]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Start_Cost))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Start_Cost]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Current_Cost))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Current_Cost]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Maker))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Maker]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Invetory_Number))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Invetory_Number]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Parameters))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Parameters]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (Model.Values[i].ContainsKey(WellEquipment.Models.Values.Info))
+                {
+                    <td>@Model.Values[i][WellEquipment.Models.Values.Info]</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<button>Изменить</button>
+<button onclick="correct_value()">Исправить</button>
+<script>
+    function correct_value() {
+        id = $('#history_id').attr('value');
+        document.location.replace('/Home/CorrectValue/?id='+id,"");
+    }
+</script>

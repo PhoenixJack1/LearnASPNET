@@ -1,0 +1,34 @@
+﻿@model List<string>
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>@Model[Model.Count-4]</h3>
+<div class="form-group">
+    <label for="groupname" class="col-md-12 control-label">@Model[Model.Count-3]</label>
+    <select name="groupname" class="form-control" id="groupname">
+        @for (var i=0;i<Model.Count-4; i++)
+        {
+            <option value="@Model[i]">@Model[i]</option>
+        }
+    </select>
+</div>
+<div>
+    <label for="wellname" class="col-md-12">@Model[Model.Count-2]</label>
+    <Input type="text" name="wellname" class="form-control" id="wellname" />
+</div>
+<input type="hidden" value="@Model[Model.Count-1]" id="typename"/>
+<div class="col-md-12">
+    <button type="button" onclick="create_filter_click()">Добавить</button>
+</div>
+<script>
+    function create_filter_click() {
+        $.post('/Home/AddFilter', { 'group': $("#groupname").val(), 'value': $('#wellname').val(), 'type': $('#typename').val() }, function (data) {
+            if (data != "") {
+                alert(data);
+            }
+            else
+                document.location.replace('/Home/EquipInfo/', "");
+        });
+    }
+</script>

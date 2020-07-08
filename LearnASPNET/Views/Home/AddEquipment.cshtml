@@ -1,0 +1,215 @@
+﻿@model WellEquipment.Models.Filters
+@{
+    ViewData["Title"] = "Оборудование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3>Добавление нового оборудования</h3>
+<form id="Add_form" onreset="setcurdate()">
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.LocationTime]" class="col-md-12 control-label">Дата</label>
+    <input type="date" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.LocationTime]" class="form-control" id="Add_date"/>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Title]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Title]</label>
+    <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Title]" class="form-control" id="EquipName"/>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Type]</label>
+    <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="form-control" id="EquipType" data-base="@WellEquipment.Models.Filters.StartType">
+        @foreach(WellEquipment.Models.FilterGroup group in Model.Types_Filters.Values)
+        {
+        <optgroup label="@group.Name">
+            @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
+            {
+                @if (filter == WellEquipment.Models.Filters.Start_Type)
+                {
+                    <option value="@filter.Name" selected>@filter.Name</option>
+                }
+                else
+                {
+                <option value="@filter.Name">@filter.Name</option>
+                }
+            }
+        </optgroup>
+    }
+    </select>
+</div>
+    <div class="form-group">
+        <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</label>
+        <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="form-control" id="EquipLocation" data-base="@WellEquipment.Models.Filters.StartLocation">
+        @foreach (WellEquipment.Models.FilterGroup group in Model.Locations_Filters.Values)
+        {
+            <optgroup label="@group.Name">
+                @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
+                {
+                    @if (filter == WellEquipment.Models.Filters.Start_Location)
+                    {
+                <option value="@filter.Name" selected>@filter.Name</option>
+                    }
+                    else
+                    {
+            <option value="@filter.Name">@filter.Name</option>
+                    }
+                }
+            </optgroup>
+        }
+        </select>
+    </div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Self_Number]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Self_Number]</label>
+    <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Self_Number]" class="form-control" id="EquipSelf_Number"/>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Start_Cost]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Start_Cost]</label>
+    <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Start_Cost]" class="form-control" id="Start_Cost"/>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Current_Cost]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Current_Cost]</label>
+    <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Current_Cost]" class="form-control" id="Current_Cost" />
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Maker]</label>
+    <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="form-control" id="EquipMaker" data-base="@WellEquipment.Models.Filters.StartMaker">
+        @foreach(WellEquipment.Models.FilterGroup group in Model.Makers_Filters.Values)
+        {
+            <optgroup label="@group.Name">
+                @foreach(WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
+                {
+                    @if (filter==WellEquipment.Models.Filters.Start_Maker)
+                    {
+                        <option value="@filter.Name" selected>@filter.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@filter.Name">@filter.Name</option>
+                    }
+                }
+            </optgroup>
+        }
+    </select>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Invetory_Number]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Invetory_Number]</label>
+    <input type="text" name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Invetory_Number]" class="form-control" id="Inventory_Number"/>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Parameters]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Parameters]</label>
+     <textarea name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Parameters]" class="form-control" rows="3" id="EquipParameters"></textarea>
+</div>
+<div class="form-group">
+    <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Info]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Info]</label>
+    <textarea name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Info]" class="form-control" rows="3" id="EquipInfo"></textarea>
+</div>
+<div class="form-group">
+    <button type="button" id="button_Add">Добавить оборудование</button>
+    <button type="button" onclick="resetform()">Сбросить форму</button>
+</div>
+    </form>
+<div id="Added_equipment" data-idlist="" hidden>
+    <details >
+        <summary>Добавленное оборудование</summary>
+        <div id="Added_equipment2"></div>
+        <button id="Remove_equipment">Удалить выбранное</button>
+    </details>
+</div>
+<script>
+    $('#Start_Cost').change(function () {
+        if ($('#Current_Cost').val() == '') {
+            $('#Current_Cost').val($(this).val());
+        }
+    });
+
+    $('#Add_date').change(function () {
+        //alert($(this).val());
+        if ($(this).val() == '') {
+            setcurdate();
+        }
+    });
+    function setcurdate() {
+        var date = new Date();
+        var month = date.getMonth() + 1;
+        var stringmonth = month;
+        if (month < 9) stringmonth = '0' + month;
+        $('#Add_date').val(date.getFullYear()+'-'+stringmonth+'-'+date.getDate());
+    }
+    function resetform() {
+        setcurdate();
+        $('#EquipName').val('');
+        $("#EquipType option[selected]").removeAttr('selected');
+        var basetype = $('#EquipType').attr('data-base');
+        $( "#EquipType option[value='"+basetype+"']").attr('selected', 'selected');
+        $('#EquipLocation option[selected]').removeAttr('selected');
+        var baselocation = $('#EquipLocation').attr('data-base');
+        $("#EquipLocation option[value='" + baselocation + "']").attr('selected', 'selected');
+        $('#EquipSelf_Number').val('');
+        $('#Start_Cost').val('');
+        $('#Current_Cost').val('');
+        $('#EquipMaker option[selected]').removeAttr('selected');
+        var basemaker = $('#EquipMaker').attr('data-base');
+        $("#EquipMaker option[value='" + basemaker + "']").attr('selected', 'selected');
+        $('#Inventory_Number').val('');
+        $('#EquipParameters').val('');
+        $('#EquipInfo').val('');
+    }
+    function resetpart() {
+        $('#EquipName').val('');
+        $("#EquipType option[selected]").removeAttr('selected');
+        var basetype = $('#EquipType').attr('data-base');
+        $( "#EquipType option[value='"+basetype+"']").attr('selected', 'selected');
+        $('#EquipSelf_Number').val('');
+        $('#Start_Cost').val('');
+        $('#Current_Cost').val('');
+        $('#EquipMaker option[selected]').removeAttr('selected');
+        var basemaker = $('#EquipMaker').attr('data-base');
+        $("#EquipMaker option[value='" + basemaker + "']").attr('selected', 'selected');
+        $('#Inventory_Number').val('');
+        $('#EquipParameters').val('');
+        $('#EquipInfo').val('');
+    }
+    $(document).ready(function () {
+        setcurdate();
+    });
+    $('#button_Add').click(function () {
+        $.post("AddEquipment", $("#Add_form").serialize(), function (data) {
+            if (data[0] != "") {
+                alert(data[0]);
+                return;
+            }
+            var addedid = data[1];
+            var element = $('#Added_equipment');
+            var idlist = element.attr('data-idlist');
+            if (idlist != "") idlist += ",";
+            idlist += addedid;
+            element.attr('data-idlist', idlist);
+            resetpart();
+            $.post('AddEquipmentShowAdded', { 'idlist': idlist }, function (data) {
+                $('#Added_equipment').removeAttr('hidden');
+                $('#Added_equipment2').html(data);
+                $('#move_pages').attr('hidden','hidden');
+            });
+        });
+    });
+    $('#Remove_equipment').click(function () {
+        var list = $('#Added_equipment2 input:checked');
+        if (list.length == 0) return;
+        var idlist = '';
+        for (var i = 0; i < list.length; i++) {
+            idlist += list.eq(i).attr('data-id');
+            if (i < list.length - 1) idlist += ',';
+        }
+        var allid = $('#Added_equipment').attr('data-idlist');
+        $.post('RemoveEquipmentFromHtml', { 'allid': allid, 'idforremove': idlist }, function (data) {
+            $('#Added_equipment2').html(data);
+             $('#move_pages').attr('hidden','hidden');
+            var list2 = $("#Added_equipment2 input[type='checkbox']");
+            if (list2.length == 0) 
+                $('#Added_equipment').attr('hidden','hidden');
+            idlist = '';
+            for (var i = 0; i < list2.length; i++) {
+                idlist += list2.eq(i).attr('data-id');
+                if (i < list2.length - 1) idlist += ',';
+            }
+            $('#Added_equipment').attr('data-idlist', idlist);
+        });
+    });
+</script>
