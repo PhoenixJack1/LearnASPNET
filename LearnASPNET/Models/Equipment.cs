@@ -50,6 +50,7 @@ namespace WellEquipment.Models
             equipment.GetCurrentParameters();
             return equipment;
         }
+        /// <summary> Используется при создании нового оборудования. Заменяет созданный базовый параметр на полученный из формы </summary>
         public void SetParameterFromBegin(Values type, DateTime date, string val)
         {
             List<Parameter> list = new List<Parameter>();
@@ -117,6 +118,37 @@ namespace WellEquipment.Models
             GetCurrentParameters();
             return "";
         }
+        /// <summary> Метод проверяет возможность добавить парметр и добавляет его </summary>
+        public string TryAddParameter(DateTime time, Values type, string val)
+        {
+            //Проверить, что бы на одну дату и один тип данных не приходилось два параметра
+            foreach (Parameter par in Parameters)
+                if (par.IsTimeEquial(time, type)==true)
+                    return "Для этой даты уже существует запись";
+            //Проверить ближайший по дате больший и меньший парметр, что бы не был такой же (замена на такое же значение)
+            Parameter EarlyDateParameter = null;
+            Parameter LateDateParameter = null;
+            foreach (Parameter par in Parameters)
+                if (type==par.Type)
+                {
+                    if (par.time<time)
+                    {
+                        if (EarlyDateParameter == null) EarlyDateParameter = par;
+                        else if (par.time > EarlyDateParameter.time) EarlyDateParameter = par;
+                    }
+                    else
+                    {
+                        if (LateDateParameter == null) LateDateParameter = par;
+                        else if (par.time < LateDateParameter.time) LateDateParameter = par;
+                    }
+                }
+            if (EarlyDateParameter!=null && EarlyDateParameter.IsValueEqual(type, val) == true)
+                return "Значение параметра уже присваивался ранее";
+            if (LateDateParameter != null && LateDateParameter.IsValueEqual(type, val) == true)
+                return "Значение параметр уже присвоено позже";
+            //Добавить параметр
+            Parameter par = new Parameter()
+        }
         /// <summary> Метод проверяет возможность изменения параметра и меняет его </summary>
         public string TryCorrectParameter(int pos, DateTime date, string val)
         {
@@ -133,8 +165,16 @@ namespace WellEquipment.Models
                     if (p.Type == par.Type && p.time == date) 
                         return "Для этой даты уже существует запись";
                 }
+            
             }
-            par.time = date; par.value = val;
+            par.time = date;
+            if (par.Type==Values.Location || par.Type==Values.Type || par.Type==Values.Maker)
+            {
+                OneFilter filter = SaveEquip.All_Filters[val];
+                par.SetFilter(filter);
+            }
+            else
+                par.value = val;
             return "";
         }
         /// <summary> Проверяет, можно ли установить на оборудование данный параметр </summary>
@@ -208,12 +248,12 @@ namespace WellEquipment.Models
         public void FillStart(DateTime time)
         {
             Parameters.Add(new Parameter(time, Values.Title, "Нет названия"));
-            Parameters.Add(new Parameter(time, Values.Type, SaveEquip.ValuesList[Values.Type][0][0]));
-            Parameters.Add(new Parameter(time, Values.Location, SaveEquip.ValuesList[Values.Location][0][0]));
+            Parameters.Add(new Parameter(time, Values.Type, Filters.Start_Type.StringID));// SaveEquip.ValuesList[Values.Type][0][0]));
+            Parameters.Add(new Parameter(time, Values.Location, Filters.Start_Location.StringID));// SaveEquip.ValuesList[Values.Location][0][0]));
             Parameters.Add(new Parameter(time, Values.Self_Number, "Заводской номер не определён"));
             Parameters.Add(new Parameter(time, Values.Start_Cost, "Начальная цена не определена"));
             Parameters.Add(new Parameter(time, Values.Current_Cost, "Текущая цена не определена"));
-            Parameters.Add(new Parameter(time, Values.Maker, SaveEquip.ValuesList[Values.Maker][0][0]));
+            Parameters.Add(new Parameter(time, Values.Maker, Filters.Start_Maker.StringID));// SaveEquip.ValuesList[Values.Maker][0][0]); 
             Parameters.Add(new Parameter(time, Values.Invetory_Number, "Инвентарный номер не определён"));
             Parameters.Add(new Parameter(time, Values.Parameters, "Дополнительные параметры не определены"));
             Parameters.Add(new Parameter(time, Values.Info, "Вновь введено"));
@@ -222,16 +262,26 @@ namespace WellEquipment.Models
         }
         public SortedList<DateTime, SortedList<Values, string>> GetHistory()
         {
-            SortedList<DateTime, SortedList<Values, string>> list = new SortedList<DateTime, SortedList<Values, string>>();
-            DateTime maxdate = DateTime.MaxValue;
+            SortedList<DateTime, SortedList<Values, string>> list = new SortedList<DateTime, SortedList<Values, string>>(); //итоговая коллекция типа <дата, коллекция со строковыми значениями>
+            DateTime maxdate = DateTime.MaxValue; //максимальное доступное значение (константа), что бы оставить в итоговой таблице место для текущих значений 
             list.Add(maxdate, new SortedList<Values, string>());
             foreach (Parameter par in CurParameters.Values)
-                list[maxdate].Add(par.Type, par.value);
-            foreach (Parameter par in Parameters)
+            {
+                //Помещение текущих значений в итоговую коллекцию
+                if (SaveEquip.FilteredValues.ContainsKey(par.Type))
+                    list[maxdate].Add(par.Type, par.Filter.Name);
+                else
+                    list[maxdate].Add(par.Type, par.value); 
+            }
+                foreach (Parameter par in Parameters)
             {
                 if (list.ContainsKey(par.time) == false)
-                    list.Add(par.time, new SortedList<Values, string>());
-                list[par.time].Add(par.Type, par.value);
+                    list.Add(par.time, new SortedList<Values, string>()); //если текущей даты в коллекции нет - то добавляем новую коллекцию для строк
+                if (SaveEquip.FilteredValues.ContainsKey(par.Type))
+                    list[par.time].Add(par.Type, par.Filter.Name);//если параметр из выбираемых - то добавляем его предустановленное значение
+                else
+                    list[par.time].Add(par.Type, par.value);//добавляем значение параметра
+                //list[par.time].Add(par.Type, par.value);//добавляем значение параметра
             }
             return list;
         }
@@ -241,7 +291,11 @@ namespace WellEquipment.Models
             list.Add($"<EQUIPMENT {id}>");
             list.Add(JsonConvert.SerializeObject(ID));
             foreach (Parameter par in Parameters)
+            {
+                
                 list.Add(JsonConvert.SerializeObject(par));
+                
+            }
             list.Add("</EQUIPMENT>");
             return list.ToArray();
         }

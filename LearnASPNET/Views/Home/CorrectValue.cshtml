@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-                @for (int i=0;i<Model.Count; i++)
+               @for (int i=0;i<Model.Count; i++)
                 {
                     <tr>
                         <th>@Model[i].TypeText</th>
@@ -24,29 +24,33 @@
                         </td>
                         <td>
                             @if (Model[i].Type == WellEquipment.Models.Values.Location ||
-                           Model[i].Type == WellEquipment.Models.Values.Type ||
-                           Model[i].Type == WellEquipment.Models.Values.Maker)
+                        Model[i].Type == WellEquipment.Models.Values.Type ||
+                        Model[i].Type == WellEquipment.Models.Values.Maker)
                             {
-                                SortedList<string, List<string>> array;
+                                SortedList<uint, WellEquipment.Models.FilterGroup> array;
+                                //SortedList<string, List<string>> array;
                                 if (Model[i].Type == WellEquipment.Models.Values.Location)
-                                    array = WellEquipment.Models.Filters.StartFilters.Locations;
+                                    array = WellEquipment.SaveEquip.Filters_From_File[2];
+                                //array = WellEquipment.Models.Filters.StartFilters.Locations;
                                 else if (Model[i].Type == WellEquipment.Models.Values.Type)
-                                    array = WellEquipment.Models.Filters.StartFilters.Types;
+                                    array = WellEquipment.SaveEquip.Filters_From_File[1];
+                                //array = WellEquipment.Models.Filters.StartFilters.Types;
                                 else
-                                    array = WellEquipment.Models.Filters.StartFilters.Makers;
+                                    array = WellEquipment.SaveEquip.Filters_From_File[3];
+                                //array = WellEquipment.Models.Filters.StartFilters.Makers;
                             <select class="form-control" data-correct_val="@i">
-                                @foreach (KeyValuePair<string, List<string>> pair in array)
+                               @foreach (WellEquipment.Models.FilterGroup group in array.Values)
                                 {
-                                    <optgroup label="@pair.Key">
-                                        @foreach (string s in pair.Value)
+                                    <optgroup label="@group.Name">
+                                        @foreach (WellEquipment.Models.OneFilter s in group.Cur_Filters.Values)
                                         {
-                                            @if (s == Model[i].value)
+                                            @if (s.StringID == Model[i].value)
                                             {
-                                                <option value="@s" selected>@s</option>
+                                                <option value="@s.StringID" selected>@s.Name</option>
                                             }
                                             else
                                             {
-                                                <option value="@s">@s</option>
+                                                <option value="@s.StringID">@s.Name</option>
                                             }
                                         }
                                     </optgroup>

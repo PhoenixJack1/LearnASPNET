@@ -9,7 +9,7 @@
     <select name="groupname" class="form-control" id="groupname">
         @for (var i=0;i<Model.Count-4; i++)
         {
-            <option value="@Model[i]">@Model[i]</option>
+            <option value="@Model[i]">@WellEquipment.SaveEquip.AllGroups[Model[i]].Name</option>
         }
     </select>
 </div>

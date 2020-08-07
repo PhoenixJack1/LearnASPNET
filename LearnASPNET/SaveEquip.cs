@@ -26,8 +26,27 @@ namespace WellEquipment
         public static string AccountsFile = "wwwroot/account/Accounts.txt";
 
         public static SortedList<uint, SortedList<uint, FilterGroup>> Filters_From_File;
-    
-        public static SortedList<string, OneFilter> All_Filters;
+        public static SortedList<string, FilterGroup> AllGroups = new SortedList<string, FilterGroup>();
+        public static SortedList<string, OneFilter> All_Filters = new SortedList<string, OneFilter>();
+        /// <summary> Список параметров, которые предустановленные </summary>
+        public static SortedList<Values, uint> FilteredValues = CreateFilteredValues();
+        public static SortedList<string, Values> Filter_From_Html = CreateFilter_From_Html();
+        static SortedList<Values, uint> CreateFilteredValues()
+        {
+            SortedList<Values, uint> result = new SortedList<Values, uint>();
+            result.Add(Values.Type, 1);
+            result.Add(Values.Location, 2);
+            result.Add(Values.Maker, 3);
+            return result;
+        }
+        static SortedList<string, Values> CreateFilter_From_Html()
+        {
+            SortedList<string, Values> result = new SortedList<string, Values>();
+            result.Add("type", Values.Type);
+            result.Add("well", Values.Location);
+            result.Add("maker", Values.Maker);
+            return result;
+        }
         public static void CreateValuesList()
         {
             ValueIsSelectable = new SortedList<Values, bool>();
@@ -44,7 +63,7 @@ namespace WellEquipment
 
             Filters_From_File = new SortedList<uint, SortedList<uint, FilterGroup>>();
 
-            ValuesList = new SortedList<Values, string[][]>();
+            //ValuesList = new SortedList<Values, string[][]>();
             //ValuesList.Add(Values.Title, new string[0][]);
            // ValuesList.Add(Values.Type, ReadValuesList(TypeFile, out Filters.StartType));
             ReadFilters(TypeFile, Values.Type, out Filters.Start_Type);
@@ -86,110 +105,128 @@ namespace WellEquipment
             HtmlNames.Add(Values.LocationTime, "EquipDate");
             HtmlNames.Add(Values.ID, "EquipID");
         }
-        public static void ChangeFilter(string user, string filename, string oldfilter, string newfilter)
+        public static void ChangeFilter(string user, OneFilter oldfilter, string newname)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding enc = Encoding.GetEncoding(1251);
-            string[] file = File.ReadAllLines(filename, enc);
-            List<string> result = new List<string>();
-            foreach (string s in file)
-            {
-               if (s==oldfilter)
-                    result.Add(newfilter);
-                else
-                    result.Add(s);
-            }
-            File.WriteAllLines(filename, result.ToArray(), enc);
-            Log.ChangeFilter(user, filename, oldfilter, newfilter);
-            if (filename == LocationsFile)
-            {
-                SaveEquip.ValuesList.Remove(Values.Location);
-                SaveEquip.ValuesList.Add(Values.Location, ReadValuesList(LocationsFile, out Filters.StartLocation));
-                foreach (Equipment equipment in SaveEquip.Equipments.Values)
-                    equipment.ChangeFilter(Values.Location, oldfilter, newfilter);
-            }
-            else if (filename == TypeFile)
-            {
-                SaveEquip.ValuesList.Remove(Values.Type);
-                SaveEquip.ValuesList.Add(Values.Type, ReadValuesList(TypeFile, out Filters.StartType));
-                foreach (Equipment equipment in SaveEquip.Equipments.Values)
-                    equipment.ChangeFilter(Values.Type, oldfilter, newfilter);
-            }
-            else if (filename == MakerFile)
-            {
-                SaveEquip.ValuesList.Remove(Values.Maker);
-                SaveEquip.ValuesList.Add(Values.Maker, ReadValuesList(MakerFile, out Filters.StartMaker));
-                foreach (Equipment equipment in SaveEquip.Equipments.Values)
-                    equipment.ChangeFilter(Values.Maker, oldfilter, newfilter);
-            }
-            Filters.StartFilters = new Filters();
-            SaveEquipments();
+            string oldname = oldfilter.Name;
+            //переименовывание фильтра
+            oldfilter.ChangeName(newname);
+            //переименовывание фильтра во всех аккаунтах
+            foreach (Account acc in SaveEquip.Accounts.Values)
+                acc.AccountFilters.AllSingleFilters[oldfilter.StringID].ChangeName(newname);
+            //сохранение базы
+            string filename = SaveFilters(oldfilter.Parent.CurValues);
+            foreach (Equipment equip in SaveEquip.Equipments.Values)
+                foreach (Parameter par in equip.CurParameters.Values)
+                    if (par.Filter == oldfilter)
+                        par.SetTextValue();
+            SaveEquip.SaveEquipments();
+            //сохранения лога
+            Log.ChangeFilter(user, filename, oldname, newname);
         }
-        /// <summary> проверяет группу фильтров, есть ли с таким же названием </summary>
-        public static bool CheckGroup(string filename, string groupname)
+       
+        /// <summary> проверяет группу фильтров, есть ли с таким же названием</summary>
+        public static bool CheckGroup(uint grouppos, string groupname)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding enc = Encoding.GetEncoding(1251);
-            string[] file = File.ReadAllLines(filename, enc);
-            foreach (string s in file)
+            SortedList<uint, FilterGroup> grouplist = SaveEquip.Filters_From_File[grouppos];
+            foreach (FilterGroup group in grouplist.Values)
             {
-                string[] words = s.Split(' ');
-                if (words.Length == 0 || words[0] != "GROUP")
-                    continue;
-                string curname = s.Substring(6, s.Length - 6);
-                if (curname == groupname) return false;
+                if (group.Name == groupname) return false;
             }
             return true;
         }
-        /// <summary> меняет наименование группы </summary>
-        public static void ChangeGroup(string filename, string oldgroupname, string newgroupname, string user)
+        /// <summary> Парсит текстовый ID группы и возвращает её </summary>
+        public static FilterGroup GetGroup(string stringid)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding enc = Encoding.GetEncoding(1251);
-            string[] file = File.ReadAllLines(filename, enc);
-            List<string> result = new List<string>();
-            Regex reg = new Regex(oldgroupname);
-            foreach (string s in file)
-            {
-                Match match = reg.Match(s);
-                if (match.Success)
-                    result.Add("GROUP " + newgroupname);
-                else
-                    result.Add(s);
-            }
-            File.WriteAllLines(filename, result.ToArray(), enc);
+            if (stringid == null || stringid == "") return null;
+            string[] poses = stringid.Split("_");
+            if (poses.Length != 3 && poses[0] != "GF") return null;
+            uint filterid = 0;
+            if (UInt32.TryParse(poses[1], out filterid) == false) return null;
+            if (Filters_From_File.ContainsKey(filterid) == false) return null;
+            uint groupid = 0;
+            if (UInt32.TryParse(poses[2], out groupid) == false) return null;
+            if (Filters_From_File[filterid].ContainsKey(groupid) == false) return null;
+            return Filters_From_File[filterid][groupid];
+        }
+        /// <summary> меняет наименование группы </summary>
+        public static void ChangeGroup(Values val, string oldgroupstringid, string newgroupname, string user)
+        {
+            FilterGroup group = GetGroup(oldgroupstringid);
+            string oldgroupname = group.Name;
+            if (group == null) throw new Exception();
+            if (val != group.CurValues) throw new Exception();
+            group.Name = newgroupname;
+            foreach (Account acc in Accounts.Values)
+                acc.AccountFilters.ChangeGroupName(group, newgroupname);
+            string filename = SaveFilters(val);
             Log.ChangeGroup(user, filename, oldgroupname, newgroupname);
-            if (filename == LocationsFile)
-            {
-                ValuesList.Remove(Values.Location);
-                ValuesList.Add(Values.Location, ReadValuesList(LocationsFile, out Filters.StartLocation));
-            }
-            else if (filename == TypeFile)
-            {
-                ValuesList.Remove(Values.Type);
-                ValuesList.Add(Values.Type, ReadValuesList(TypeFile, out Filters.StartType));
-            }
-            else if (filename == MakerFile)
-            {
-                ValuesList.Remove(Values.Maker);
-                ValuesList.Add(Values.Maker, ReadValuesList(MakerFile, out Filters.StartMaker));
-            }
-            Filters.StartFilters = new Filters();
         }
         /// <summary> добавляет группу фильтров</summary>
-        public static void AddGroup(string filename, string groupname, string user)
+        public static void AddGroup(Values val, string groupname, string user)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding enc = Encoding.GetEncoding(1251);
-            string[] Lines = new string[]
-            {
-                "GROUP "+groupname,
-            "ENDGROUP"
-            };
-            File.AppendAllLines(filename, Lines, enc);
+            //поиск свободного ID
+            uint groupid = 0;
+            uint filterid = FilteredValues[val];
+            SortedList<uint, FilterGroup> list = Filters_From_File[filterid];
+            for (; ; groupid++)
+                if (list.Keys.Contains(groupid)) continue;
+                else
+                    break;
+            FilterGroup group = new FilterGroup(groupname, groupid, filterid, val);
+            //добавление группы в общий список
+            list.Add(groupid, group);
+            AllGroups.Add(group.StringID, group);
+            //добавление группы в аккаунты
+            foreach (Account acc in Accounts.Values)
+                acc.AccountFilters.AddNewGroup(group);
+            //сохранение базы
+            string filename = SaveFilters(val);
             Log.AddGroup(user, filename, groupname);
         }
-        /// <summary> Возвращает перечень групп с файла </summary>
+        static string SaveFilters(Values val)
+        {
+            OneFilter startfilter = null;
+            uint filterid = FilteredValues[val];
+            string filename = "";
+            switch (val)
+            {
+                case Values.Type:
+                    startfilter = Filters.Start_Type; filename = TypeFile; break;
+                case Values.Location:
+                    startfilter = Filters.Start_Location; filename = LocationsFile; break;
+                case Values.Maker:
+                    startfilter = Filters.Start_Maker; filename = MakerFile; break;
+                default: throw new Exception();
+            }
+            List<string> file = new List<string>();
+            file.Add(filterid.ToString());
+            foreach (FilterGroup gr in Filters_From_File[filterid].Values)
+            {
+                file.Add(String.Format("GROUP {0} {1}", gr.ID, gr.Name));
+                foreach (OneFilter filter in gr.Cur_Filters.Values)
+                {
+                    if (filter == startfilter)
+                        file.Add(string.Format("{0} START {1}", filter.ID, filter.Name));
+                    else
+                        file.Add(string.Format("{0} {1}", filter.ID, filter.Name));
+                }
+                file.Add("ENDGROUP");
+            }
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding enc = Encoding.GetEncoding(1251);
+            File.WriteAllLines(filename, file, enc);
+            return filename;
+        }
+        /// <summary> Возвращает перечень идентификаторов групп</summary>
+        public static List<string> GetFilterGroups(Values val)
+        {
+            uint filterid = FilteredValues[val];
+            List<string> result = new List<string>();
+            foreach (FilterGroup group in Filters_From_File[filterid].Values)
+                result.Add(group.StringID);
+            return result;
+        }
+        /// <summary> Возвращает перечень групп с файла (Устаревшее) </summary>
         public static List<string> GetFilterGroups(string filename)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -207,6 +244,20 @@ namespace WellEquipment
             return result;
         }
         /// <summary> проверяет, есть ли такой же фильтр</summary>
+        public static bool CheckFilter(Values val, string group_id, string filter_name)
+        {
+            SortedList<uint, FilterGroup> group_list = Filters_From_File[FilteredValues[val]];
+            FilterGroup group = GetGroup(group_id);
+            if (group == null)
+                throw new Exception("Ошибка в ID группы - не найдена группа");
+            if (group.CurValues != val)
+                throw new Exception("Ошибка в ID группы - неверный тип фильтров");
+            foreach (OneFilter filter in group.Cur_Filters.Values)
+                if (filter.Name == filter_name) 
+                    return true;
+            return false;
+        }
+        /// <summary> проверяет, есть ли такой же фильтр (Устаревшее)</summary>
         public static bool CheckFilter(string[][] list, string filter)
         {
             foreach (string[] str in list)
@@ -216,44 +267,29 @@ namespace WellEquipment
             }
             return true;
         }
-        public static void AddFilter(string user, string filename, string groupname, string filter)
+        /// <summary> добавляет фильтр</summary>
+        public static void AddFilter(string user, string filtername, string group_id, Values val)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Encoding enc = Encoding.GetEncoding(1251);
-            string[] file = File.ReadAllLines(filename, enc);
-            List<string> result = new List<string>();
-            string curgroup = "";
-            foreach (string s in file)
-            {
-                if (s == "") continue;
-                string[] words = s.Split(' ');
-                if (words.Length == 0) continue;
-                if (words[0] == "GROUP")
-                    curgroup = s.Substring(6, s.Length - 6);
-                if (words[0] == "ENDGROUP" && curgroup == groupname)
-                    result.Add(filter);
-                result.Add(s);
-            }
-            File.WriteAllLines(filename, result.ToArray(), enc);
-            Log.AddFilter(user, filename, groupname, filter);
-            if (filename == LocationsFile)
-            {
-                ValuesList.Remove(Values.Location);
-                ValuesList.Add(Values.Location, ReadValuesList(LocationsFile, out Filters.StartLocation));
-            }
-            else if (filename==TypeFile)
-            {
-                ValuesList.Remove(Values.Type);
-                ValuesList.Add(Values.Type, ReadValuesList(TypeFile, out Filters.StartType));
-            }
-            else if (filename==MakerFile)
-            {
-                ValuesList.Remove(Values.Maker);
-                ValuesList.Add(Values.Maker, ReadValuesList(MakerFile, out Filters.StartMaker));
-            }
-            Filters.StartFilters = new Filters();
-
+            //поиск группы
+            FilterGroup group = GetGroup(group_id);
+            //поиск свободного id
+            uint id=0;
+            for (id = 0; ; id++)
+                if (group.Cur_Filters.Keys.Contains(id)) continue; else break;
+            //создание фильтра
+            OneFilter filter = new OneFilter(filtername, id, group);
+            //добавление фильтра
+            group.Cur_Filters.Add(id, filter);
+            All_Filters.Add(filter.StringID, filter);
+            //добавление фильтра в аккаунты
+            foreach (Account acc in Accounts.Values)
+                acc.AccountFilters.AddNewFilter(filter);
+            //сохранение базы
+            string filename = SaveFilters(val);
+            //сохранение лога
+            Log.AddFilter(user, filename, group.Name, filtername);
         }
+     
         static void ReadFilters(string filename, Values value, out OneFilter startpos)
         {
             startpos = null;
@@ -293,7 +329,9 @@ namespace WellEquipment
                     string group_name = "";
                     for (int j = 2; j < ss.Length; j++)
                     { group_name += ss[j]; if (j < ss.Length-1) group_name += " "; }
-                    groups.Add(cur_group_id, new FilterGroup(group_name, cur_group_id, filter_id, value));
+                    FilterGroup gr = new FilterGroup(group_name, cur_group_id, filter_id, value);
+                    groups.Add(cur_group_id, gr);
+                    AllGroups.Add(gr.StringID, gr);
                     havegroup = true;
                     cur_group = groups[cur_group_id];
                 }
@@ -320,7 +358,9 @@ namespace WellEquipment
                         {
                             for (int j = 2; j < ss.Length; j++)
                             { filter_name += ss[j]; if (j < ss.Length - 1) filter_name += " "; }
-                            cur_group.Cur_Filters.Add(one_filter_id, new OneFilter(filter_name, one_filter_id, cur_group));
+                            OneFilter f = new OneFilter(filter_name, one_filter_id, cur_group);
+                            cur_group.Cur_Filters.Add(one_filter_id, f);
+                            All_Filters.Add(f.StringID, f);
                             if (startpos == null)
                                 startpos = cur_group.Cur_Filters[one_filter_id];
                             else
@@ -330,7 +370,9 @@ namespace WellEquipment
                         {
                             for (int j = 1; j < ss.Length; j++)
                             { filter_name += ss[j]; if (j < ss.Length - 1) filter_name += " "; }
-                            cur_group.Cur_Filters.Add(one_filter_id, new OneFilter(filter_name, one_filter_id, cur_group));
+                            OneFilter f = new OneFilter(filter_name, one_filter_id, cur_group);
+                            cur_group.Cur_Filters.Add(one_filter_id, f);
+                            All_Filters.Add(f.StringID, f);
                         }
                     }
                 }

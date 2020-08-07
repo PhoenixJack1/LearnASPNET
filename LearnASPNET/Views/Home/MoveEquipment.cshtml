@@ -13,19 +13,12 @@
     <div class="form-group">
         <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</label>
         <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="form-control" id="EquipLocation" data-base="@WellEquipment.Models.Filters.StartLocation">
-            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Locations)
+            @foreach(WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[2].Values)
             {
-                <optgroup label="@pair.Key">
-                    @foreach (string s in pair.Value)
+                <optgroup label="@group.Name">
+                    @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                     {
-                        @if (s == @WellEquipment.Models.Filters.StartLocation)
-                        {
-                            <option value="@s" selected>@s</option>
-                        }
-                        else
-                        {
-                            <option value="@s">@s</option>
-                        }
+                        <option value="@filter.StringID">@filter.Name</option>
                     }
                 </optgroup>
             }

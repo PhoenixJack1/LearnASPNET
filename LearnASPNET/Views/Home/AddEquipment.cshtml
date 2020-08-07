@@ -1,5 +1,4 @@
-﻿@model WellEquipment.Models.Filters
-@{
+﻿@{
     ViewData["Title"] = "Оборудование";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -16,18 +15,18 @@
 <div class="form-group">
     <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Type]</label>
     <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Type]" class="form-control" id="EquipType" data-base="@WellEquipment.Models.Filters.StartType">
-        @foreach(WellEquipment.Models.FilterGroup group in Model.Types_Filters.Values)
+        @foreach (WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[1].Values)
         {
         <optgroup label="@group.Name">
             @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
             {
                 @if (filter == WellEquipment.Models.Filters.Start_Type)
                 {
-                    <option value="@filter.Name" selected>@filter.Name</option>
+                    <option value="@filter.StringID" selected>@filter.Name</option>
                 }
                 else
                 {
-                <option value="@filter.Name">@filter.Name</option>
+                <option value="@filter.StringID">@filter.Name</option>
                 }
             }
         </optgroup>
@@ -37,18 +36,18 @@
     <div class="form-group">
         <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Location]</label>
         <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Location]" class="form-control" id="EquipLocation" data-base="@WellEquipment.Models.Filters.StartLocation">
-        @foreach (WellEquipment.Models.FilterGroup group in Model.Locations_Filters.Values)
+        @foreach (WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[2].Values)
         {
             <optgroup label="@group.Name">
                 @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                 {
                     @if (filter == WellEquipment.Models.Filters.Start_Location)
                     {
-                <option value="@filter.Name" selected>@filter.Name</option>
+                <option value="@filter.StringID" selected>@filter.Name</option>
                     }
                     else
                     {
-            <option value="@filter.Name">@filter.Name</option>
+            <option value="@filter.StringID">@filter.Name</option>
                     }
                 }
             </optgroup>
@@ -70,18 +69,18 @@
 <div class="form-group">
     <label for="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="col-md-12 control-label">@WellEquipment.SaveEquip.ValuesNames[WellEquipment.Models.Values.Maker]</label>
     <select name="@WellEquipment.SaveEquip.HtmlNames[WellEquipment.Models.Values.Maker]" class="form-control" id="EquipMaker" data-base="@WellEquipment.Models.Filters.StartMaker">
-        @foreach(WellEquipment.Models.FilterGroup group in Model.Makers_Filters.Values)
+        @foreach(WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[3].Values)
         {
             <optgroup label="@group.Name">
                 @foreach(WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                 {
                     @if (filter==WellEquipment.Models.Filters.Start_Maker)
                     {
-                        <option value="@filter.Name" selected>@filter.Name</option>
+                        <option value="@filter.StringID" selected>@filter.Name</option>
                     }
                     else
                     {
-                        <option value="@filter.Name">@filter.Name</option>
+                        <option value="@filter.StringID">@filter.Name</option>
                     }
                 }
             </optgroup>

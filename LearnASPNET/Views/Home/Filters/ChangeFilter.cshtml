@@ -5,40 +5,40 @@
 }
 <h3>@Model[0]</h3>
 <div class="form-group">
-    <label for="oldfiltername" class="col-md-12 control-label">@Model[1]</label>
-    <select name="oldfiltername" class="form-control" id="oldfiltername">
+    <label for="oldfilterID" class="col-md-12 control-label">@Model[1]</label>
+    <select name="oldfilterID" class="form-control" id="oldfilterID">
         @if (Model[3] == "well")
         {
-            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Locations)
+            @foreach (WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[2].Values)
             {
-                <optgroup label="@pair.Key">
-                    @foreach (string s in pair.Value)
+                <optgroup label="@group.Name">
+                    @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                     {
-                        <option value="@s">@s</option>
+                        <option value="@filter.StringID">@filter.Name</option>
                     }
                 </optgroup>
             }
         }
         @if (Model[3] == "type")
         {
-            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Types)
+            @foreach (WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[1].Values)
             {
-                <optgroup label="@pair.Key">
-                    @foreach (string s in pair.Value)
+                <optgroup label="@group.Name">
+                    @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                     {
-                        <option value="@s">@s</option>
+                        <option value="@filter.StringID">@filter.Name</option>
                     }
                 </optgroup>
             }
         }
         @if (Model[3] == "maker")
         {
-            @foreach (KeyValuePair<string, List<string>> pair in WellEquipment.Models.Filters.StartFilters.Makers)
+            @foreach (WellEquipment.Models.FilterGroup group in WellEquipment.SaveEquip.Filters_From_File[3].Values)
             {
-                <optgroup label="@pair.Key">
-                    @foreach (string s in pair.Value)
+                <optgroup label="@group.Name">
+                    @foreach (WellEquipment.Models.OneFilter filter in group.Cur_Filters.Values)
                     {
-                        <option value="@s">@s</option>
+                        <option value="@filter.StringID">@filter.Name</option>
                     }
                 </optgroup>
             }
@@ -55,7 +55,7 @@
 </div>
 <script>
     function change_filter_click() {
-        $.post('/Home/ChangeFilter', { 'oldfiltername': $("#oldfiltername").val(), 'newfiltername': $('#newfiltername').val(), 'type': $('#typename').val() }, function (data) {
+        $.post('/Home/ChangeFilter', { 'oldfilterID': $("#oldfilterID").val(), 'newfiltername': $('#newfiltername').val(), 'type': $('#typename').val() }, function (data) {
             if (data != "") {
                 alert(data);
             }

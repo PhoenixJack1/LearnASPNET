@@ -7,7 +7,7 @@ namespace WellEquipment.Models
 {
     public class Filters
     {
-        public SortedList<string, List<string>> Locations;
+        public SortedList<string, List<string>> Locations; //Надо убрать
         public static string StartLocation;
         public static OneFilter Start_Location;
         public SortedList<string, List<string>> Types;
@@ -16,22 +16,29 @@ namespace WellEquipment.Models
         public SortedList<string, List<string>> Makers;
         public static string StartMaker;
         public static OneFilter Start_Maker;
-        public List<FilterGroup> LocationsFilters;
-        public List<FilterGroup> TypesFilters;
-        public List<FilterGroup> MakersFilters;
+        //public List<FilterGroup> LocationsFilters;
+        //public List<FilterGroup> TypesFilters;
+        //public List<FilterGroup> MakersFilters;
         
+        /// <summary> Все фильтры в одной коллекции. Ключ - текстовый ID </summary>
         public SortedList<string, OneFilter> AllSingleFilters;
+        /// <summary> Все группы фильтров в одной коллекции. Ключ - текстовый ID </summary>
         public SortedList<string, FilterGroup> AllGroupFilters;
+        /// <summary> Дерево фильтров. Первый ключ - тип фильтра (Локация, тип, производитель), второй ключ - ID группы </summary>
         public SortedList<uint, SortedList<uint, FilterGroup>> List;
+        /// <summary> Все фильтры локации </summary>
         public SortedList<uint, FilterGroup> Locations_Filters;
+        /// <summary> Все фильтры типа </summary>
         public SortedList<uint, FilterGroup> Types_Filters;
+        /// <summary> Все фильтры производителя </summary>
         public SortedList<uint, FilterGroup> Makers_Filters;
-
+        
         public static Filters StartFilters; //Ненужно
         public static string GroupWord = "Group_";
         public static string LocationWord = "Loc_";
         public static string TypeWord = "Type_";
         public static string MakerWord = "Maker_";
+        
         public Filters()
         {
             AllSingleFilters = new SortedList<string, OneFilter>();
@@ -56,59 +63,28 @@ namespace WellEquipment.Models
             Types_Filters = List[1];
             Locations_Filters = List[2];
             Makers_Filters = List[3];
-           /* AllSingleFilters = new SortedList<string, OneFilter>();
-            AllGroupFilters = new SortedList<string, FilterGroup>();
-            Locations = new SortedList<string, List<string>>();
-            for (int i = 0; i < SaveEquip.ValuesList[Values.Location].Length; i++)
-            {
-                string[] array = SaveEquip.ValuesList[Values.Location][i];
-                if (Locations.ContainsKey(array[1]) == false)
-                    Locations.Add(array[1], new List<string>());
-                Locations[array[1]].Add(array[0]);
-            }
-            LocationsFilters = new List<FilterGroup>();
-            foreach (KeyValuePair<string, List<string>> pair in Locations)
-            {
-                FilterGroup group = new FilterGroup(pair.Key, pair.Value, Values.Location);
-                LocationsFilters.Add(group);
-                AllGroupFilters.Add(group.ID, group);
-                foreach (OneFilter filter in group.Cur_Filters.Values)
-                    AllSingleFilters.Add(filter.ID, filter);
-            }
-            Types = new SortedList<string, List<string>>();
-            for (int i = 0; i < SaveEquip.ValuesList[Values.Type].Length; i++)
-            {
-                string[] array = SaveEquip.ValuesList[Values.Type][i];
-                if (Types.ContainsKey(array[1]) == false)
-                    Types.Add(array[1], new List<string>());
-                Types[array[1]].Add(array[0]);
-            }
-            TypesFilters = new List<FilterGroup>();
-            foreach (KeyValuePair<string, List<string>> pair in Types)
-            {
-                FilterGroup group = new FilterGroup(pair.Key, pair.Value, Values.Type);
-                TypesFilters.Add(group);
-                AllGroupFilters.Add(group.ID, group);
-                foreach (OneFilter filter in group.Cur_Filters.Values)
-                    AllSingleFilters.Add(filter.ID, filter);
-            }
-            Makers = new SortedList<string, List<string>>();
-            for (int i = 0; i < SaveEquip.ValuesList[Values.Maker].Length; i++)
-            {
-                string[] array = SaveEquip.ValuesList[Values.Maker][i];
-                if (Makers.ContainsKey(array[1]) == false)
-                    Makers.Add(array[1], new List<string>());
-                Makers[array[1]].Add(array[0]);
-            }
-            MakersFilters = new List<FilterGroup>();
-            foreach (KeyValuePair<string, List<string>> pair in Makers)
-            {
-                FilterGroup group = new FilterGroup(pair.Key, pair.Value, Values.Maker);
-                MakersFilters.Add(group);
-                AllGroupFilters.Add(group.ID, group);
-                foreach (OneFilter filter in group.Cur_Filters.Values)
-                    AllSingleFilters.Add(filter.ID, filter);
-            }*/
+           
+        }
+        /// <summary> Добавляет новый фильтр в массив </summary>
+        public void AddNewFilter(OneFilter basefilter)
+        {
+            FilterGroup group = AllGroupFilters[basefilter.Parent.StringID];
+            OneFilter filter = new OneFilter(basefilter.Name, basefilter.ID, group);
+            group.Cur_Filters.Add(filter.ID, filter);
+            AllSingleFilters.Add(filter.StringID, filter);
+            filter.Selected = group.Selected;
+        }
+        /// <summary> Добавляет новую группу фильтров в массив </summary>
+        public void AddNewGroup(FilterGroup basegroup)
+        {
+            FilterGroup group = new FilterGroup(basegroup.Name, basegroup.ID, basegroup.Filter_ID, basegroup.CurValues);
+            List[group.Filter_ID].Add(group.ID, group);
+            AllGroupFilters.Add(group.StringID, group);
+        }
+        /// <summary> Меняет наименование группы фильтров</summary>
+        public void ChangeGroupName(FilterGroup basegroup, string name)
+        {
+            AllGroupFilters[basegroup.StringID].Name = name;
         }
         public uint GetGroupIDFromValue(Values val)
         {
@@ -137,29 +113,41 @@ namespace WellEquipment.Models
         /// <summary> Метод проверяет, существует ли такое расположение</summary>
         public static bool CheckLocation(string val)
         {
-            foreach (List<string> list in StartFilters.Locations.Values)
-                foreach (string s in list)
-                    if (s == val) 
-                        return true;
-            return false;
+            OneFilter result = null;
+            //поиск фильтра
+            if (SaveEquip.All_Filters.ContainsKey(val))
+                result = SaveEquip.All_Filters[val];
+            //проверка соответствия фильтра типу данных
+            if (result != null && result.Parent.CurValues == Values.Location)
+                return true;
+            else
+                return false;
         }
         /// <summary> Метод проверяет, существует ли такой тип оборудования</summary>
         public static bool CheckType(string val)
         {
-            foreach (List<string> list in StartFilters.Types.Values)
-                foreach (string s in list)
-                    if (s == val)
-                        return true;
-            return false;
+            OneFilter result = null;
+            //поиск фильтра
+            if (SaveEquip.All_Filters.ContainsKey(val))
+                result = SaveEquip.All_Filters[val];
+            //проверка соответствия фильтра типу данных
+            if (result != null && result.Parent.CurValues == Values.Type)
+                return true;
+            else
+                return false;
         }
         /// <summary> Метод проверяет, существует ли такой производитель</summary>
         public static bool CheckMaker(string val)
         {
-            foreach (List<string> list in StartFilters.Makers.Values)
-                foreach (string s in list)
-                    if (s == val)
-                        return true;
-            return false;
+            OneFilter result = null;
+            //поиск фильтра
+            if (SaveEquip.All_Filters.ContainsKey(val))
+                result = SaveEquip.All_Filters[val];
+            //проверка соответствия фильтра типу данных
+            if (result != null && result.Parent.CurValues == Values.Maker)
+                return true;
+            else
+                return false;
         }
         /*public static Filters GetNewFilters()
         {
@@ -179,6 +167,10 @@ namespace WellEquipment.Models
             ID = id;
             Parent = parent;
             StringID = string.Format("OF_{0}_{1}_{2}", Parent.Filter_ID, Parent.ID, ID);
+        }
+        public void ChangeName(string newname)
+        {
+            Name = newname;
         }
     }
     public class FilterGroup

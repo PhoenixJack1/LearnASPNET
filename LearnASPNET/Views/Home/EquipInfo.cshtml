@@ -88,11 +88,11 @@
                                             <label for="@s.StringID">@s.Name</label>
                                             @if (s.Selected)
                                             {
-                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-type_name="@group.StringID" checked />
+                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-loc_name="@group.StringID" checked />
                                             }
                                             else
                                             {
-                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-type_name="@group.StringID" />
+                                                <input type="checkbox" name="@s.StringID" data-loc_type="single" data-loc_name="@group.StringID" />
                                             }
                                         </li>
                                     }
@@ -134,11 +134,11 @@
                                             <label for="@s.StringID">@s.Name</label>
                                             @if (s.Selected)
                                             {
-                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-type_name="@group.StringID" checked />
+                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-maker_name="@group.StringID" checked />
                                             }
                                             else
                                             {
-                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-type_name="@group.StringID" />
+                                                <input type="checkbox" name="@s.StringID" data-maker_type="single" data-maker_name="@group.StringID" />
                                             }
                                         </li>
                                     }
@@ -158,7 +158,7 @@
 <button id="move_button" onclick="move_button_click()">Переместить</button>
 <button id="history_button" onclick="history_button_click()">История</button>
 <script type="text/javascript">
-    //Включает/выключает все фильтры скважин при клике на типе оборудования
+    //Включает/выключает все фильтры оборудования, при клике на типе оборудования
     $("input[data-type_type='group']").click(function () {
         var name = this.name;
         if ($(this).is(':checked')) {

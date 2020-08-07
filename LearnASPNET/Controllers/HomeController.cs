@@ -78,7 +78,7 @@ namespace WellEquipment.Controllers
         [HttpGet]
         public IActionResult AddEquipment()
         {
-            return View("AddEquipment", WellEquipment.Models.Filters.StartFilters);
+            return View("AddEquipment");
         }
         [HttpPost]
         public string[] AddEquipment(bool b)
@@ -109,7 +109,7 @@ namespace WellEquipment.Controllers
             if (idlist == null || idlist == "")
                 return View("EquipmentTable", new WellEquipment.Models.EquipInfo());
             List<long> list = SplitID(idlist);
-            return View("EquipmentTable", new WellEquipment.Models.EquipInfo(list));
+            return View("EquipmentTable", new WellEquipment.Models.EquipInfo(list, 0));
         }
         [HttpPost]
         public IActionResult RemoveEquipmentFromHtml(string allid, string idforremove)
@@ -125,7 +125,7 @@ namespace WellEquipment.Controllers
                     alllist.Remove(id);
                 }
             SaveEquip.SaveEquipments();
-            return View("EquipmentTable", new WellEquipment.Models.EquipInfo(alllist));
+            return View("EquipmentTable", new WellEquipment.Models.EquipInfo(alllist, 0));
         }
         [HttpGet]
         public IActionResult ChangeEquipment(string id)
@@ -173,13 +173,13 @@ namespace WellEquipment.Controllers
             return View("MoveEquipment", idlist);
         }
         [HttpPost]
-        public string MoveEquipment(string idlist, string date, string location)
+        public string MoveEquipment(string idlist, string date, string locationID)
         {
             if (idlist == null || idlist == "")
                 return "Ошибка при парсинге ID";
             if (date == null || date == "")
                 return "Ошибка при парсинге даты";
-            if (location == null || location == "")
+            if (locationID == null || locationID == "")
                 return "Ошибка при парсинге локации";
             DateTime curdate;
             if (DateTime.TryParse(date, out curdate) == false)
@@ -187,12 +187,10 @@ namespace WellEquipment.Controllers
             List<long> listformove = SplitID(idlist);
             if (listformove.Count == 0)
                 return "Ошибка при парсинге ID";
-            bool truelocation = false;
-            foreach (string[] a in SaveEquip.ValuesList[Values.Location])
+            if (SaveEquip.All_Filters.ContainsKey(locationID)==false || SaveEquip.All_Filters[locationID].Parent.CurValues!=Values.Location)
             {
-                if (location == a[0]) { truelocation = true; break; }
+                return "Ошибка при парсинге локации";
             }
-            if (truelocation == false) return "Ошибка при парсинге локации";
             foreach (long id in listformove)
             {
                 if (SaveEquip.Equipments.ContainsKey(id) == false)
@@ -209,6 +207,7 @@ namespace WellEquipment.Controllers
             SaveEquip.SaveEquipments();
             return "";
         }
+        /// <summary> Изменить значения отдельных параметров </summary>
         [HttpGet]
         public IActionResult CorrectValue(string id)
         {
@@ -273,6 +272,7 @@ namespace WellEquipment.Controllers
                 SaveEquip.SaveEquipments();
             return deleteresult;
         }
+        /// <summary> История изменения оборудования </summary>
         [HttpGet]
         public IActionResult HistoryEquipment(string id)
         {
@@ -309,22 +309,22 @@ namespace WellEquipment.Controllers
             switch (groupname)
             {
                 case "well":
-                    bool checkwell = SaveEquip.CheckGroup(SaveEquip.LocationsFile, value);
+                    bool checkwell = SaveEquip.CheckGroup(2, value);
                     if (checkwell == false)
                         return "Месторождение уже добавлено";
-                    SaveEquip.AddGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.LocationsFile, value);
+                    SaveEquip.AddGroup(Values.Location, value, SaveEquip.Accounts[User.Identity.Name].Name);
                     break;
                 case "type":
-                    bool checktype = SaveEquip.CheckGroup(SaveEquip.TypeFile, value);
+                    bool checktype = SaveEquip.CheckGroup(1, value);
                     if (checktype == false)
                         return "Такая группа уже добавлена";
-                    SaveEquip.AddGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.TypeFile, value);
+                    SaveEquip.AddGroup(Values.Type, value, SaveEquip.Accounts[User.Identity.Name].Name);
                     break;
                 case "maker":
-                    bool checkmaker = SaveEquip.CheckGroup(SaveEquip.MakerFile, value);
+                    bool checkmaker = SaveEquip.CheckGroup(3, value);
                     if (checkmaker == false)
                         return "Такая группа уже добавлена";
-                    SaveEquip.AddGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.MakerFile, value);
+                    SaveEquip.AddGroup(Values.Maker, value, SaveEquip.Accounts[User.Identity.Name].Name);
                     break;
             }
             return "";
@@ -337,21 +337,21 @@ namespace WellEquipment.Controllers
             switch (groupname)
             {
                 case "well": 
-                    List<string> fields = SaveEquip.GetFilterGroups(SaveEquip.LocationsFile);
+                    List<string> fields = SaveEquip.GetFilterGroups(Values.Location);
                     fields.Add("Добавление новой скважины");
                     fields.Add("Месторождение");
                     fields.Add("Наименование скважины");
                     fields.Add("well");
                     return View("Filters/AddFilter", fields);
                 case "type":
-                    List<string> types = SaveEquip.GetFilterGroups(SaveEquip.TypeFile);
+                    List<string> types = SaveEquip.GetFilterGroups(Values.Type);
                     types.Add("Добавление нового типа оборудования");
                     types.Add("Группа");
                     types.Add("Наименование типа");
                     types.Add("type");
                     return View("Filters/AddFilter", types); 
                 case "maker":
-                    List<string> makers = SaveEquip.GetFilterGroups(SaveEquip.MakerFile);
+                    List<string> makers = SaveEquip.GetFilterGroups(Values.Maker);
                     makers.Add("Добавление нового производителя");
                     makers.Add("Группа");
                     makers.Add("Наименование производителя");
@@ -363,31 +363,34 @@ namespace WellEquipment.Controllers
         [HttpPost]
         public string AddFilter(string group, string value, string type)
         {
+            
             if (group == null || group == "")
                 return "Ошибка в данных";
             if (type == null || type == "")
                 return "Ошибка в данных";
+            if (SaveEquip.Filter_From_Html.ContainsKey(type) == false)
+                return "Ошибка данных";
             if (value == null || value == "")
                 return "Название не может быть пустым";
             switch (type)
             {
-                case "well": 
-                    bool checkfields = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Location], value);
-                    if (checkfields == false)
+                case "well":
+                    bool haswell = SaveEquip.CheckFilter(Values.Location, group, value);
+                    if (haswell==true)
                         return "Такая скважина уже есть";
-                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.LocationsFile, group, value);
+                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, value, group, Values.Location);
                     break;
                 case "type":
-                    bool checktype = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Type], value);
-                    if (checktype == false)
-                        return "Такой тип оборудования уже есть";
-                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.TypeFile, group, value);
+                    bool hastype = SaveEquip.CheckFilter(Values.Type, group, value);
+                    if (hastype == true)
+                        return "Такая скважина уже есть";
+                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, value, group, Values.Type);
                     break;
                 case "maker":
-                    bool checkmaker = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Maker], value);
-                    if (checkmaker == false)
-                        return "Такой производитель уже есть";
-                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.MakerFile, group, value);
+                    bool hasmaker = SaveEquip.CheckFilter(Values.Maker, group, value);
+                    if (hasmaker == true)
+                        return "Такая скважина уже есть";
+                    SaveEquip.AddFilter(SaveEquip.Accounts[User.Identity.Name].Name, value, group, Values.Maker);
                     break;
             }
             return "";
@@ -400,21 +403,21 @@ namespace WellEquipment.Controllers
             switch (groupname)
             {
                 case "well":
-                    List<string> fields = SaveEquip.GetFilterGroups(SaveEquip.LocationsFile);
+                    List<string> fields = SaveEquip.GetFilterGroups(Values.Location);
                     fields.Add("Смена названия месторождения");
                     fields.Add("Текущее название");
                     fields.Add("Новое название");
                     fields.Add("well");
                     return View("Filters/ChangeGroup", fields);
                 case "type":
-                    List<string> types = SaveEquip.GetFilterGroups(SaveEquip.TypeFile);
+                    List<string> types = SaveEquip.GetFilterGroups(Values.Type);
                     types.Add("Смена названия группы типа оборудования");
                     types.Add("Текущее название");
                     types.Add("Новое название");
                     types.Add("type");
                     return View("Filters/ChangeGroup", types);
                 case "maker":
-                    List<string> makers = SaveEquip.GetFilterGroups(SaveEquip.MakerFile);
+                    List<string> makers = SaveEquip.GetFilterGroups(Values.Maker);
                     makers.Add("Смена названия группы производителей");
                     makers.Add("Текущее название");
                     makers.Add("Новое название");
@@ -432,25 +435,38 @@ namespace WellEquipment.Controllers
                 return "Ошибка в данных";
             if (newgroupname == null || newgroupname == "")
                 return "Название не может быть пустым";
+            FilterGroup group = SaveEquip.GetGroup(oldgroupname);
+            if (group == null)
+                return "Ошибка данных";
+
             switch (type)
             {
                 case "well":
-                    bool checkwell = SaveEquip.CheckGroup(SaveEquip.LocationsFile, oldgroupname);
-                    if (checkwell == true)
+                    if (group.CurValues != Values.Location) 
                         return "Ошибка данных";
-                    SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.LocationsFile, oldgroupname, newgroupname);
+                    bool checkwell = SaveEquip.CheckGroup(2, newgroupname);
+                    if (checkwell == false)
+                        return "Такое название уже есть";
+                    SaveEquip.ChangeGroup(Values.Location, oldgroupname, newgroupname, SaveEquip.Accounts[User.Identity.Name].Name);
+                    //SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.LocationsFile, oldgroupname, newgroupname);
                     break;
                 case "type":
-                    bool checktype = SaveEquip.CheckGroup(SaveEquip.TypeFile, oldgroupname);
-                    if (checktype == true)
+                    if (group.CurValues != Values.Type)
                         return "Ошибка данных";
-                    SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.TypeFile, oldgroupname, newgroupname);
+                    bool checktype = SaveEquip.CheckGroup(1, newgroupname);
+                    if (checktype == false)
+                        return "Такое название уже есть";
+                    SaveEquip.ChangeGroup(Values.Type, oldgroupname, newgroupname, SaveEquip.Accounts[User.Identity.Name].Name);
+                    //SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.TypeFile, oldgroupname, newgroupname);
                     break;
                 case "maker":
-                    bool checkmaker = SaveEquip.CheckGroup(SaveEquip.MakerFile, oldgroupname);
-                    if (checkmaker == true)
+                    if (group.CurValues != Values.Maker)
                         return "Ошибка данных";
-                    SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.MakerFile, oldgroupname, newgroupname);
+                    bool checkmaker = SaveEquip.CheckGroup(3, newgroupname);
+                    if (checkmaker == false)
+                        return "Такое название уже есть";
+                    SaveEquip.ChangeGroup(Values.Maker, oldgroupname, newgroupname, SaveEquip.Accounts[User.Identity.Name].Name);
+                    //SaveEquip.ChangeGroup(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.MakerFile, oldgroupname, newgroupname);
                     break;
             }
             return "";
@@ -488,33 +504,36 @@ namespace WellEquipment.Controllers
             }
         }
         [HttpPost]
-        public string ChangeFilter(string oldfiltername, string newfiltername, string type)
+        public string ChangeFilter(string oldfilterID, string newfiltername, string type)
         {
-            if (oldfiltername == null || oldfiltername == "")
+            if (oldfilterID == null || oldfilterID == "")
                 return "Ошибка в данных";
             if (type == null || type == "")
                 return "Ошибка в данных";
             if (newfiltername == null || newfiltername == "")
                 return "Название не может быть пустым";
+            if (SaveEquip.All_Filters.ContainsKey(oldfilterID) == false)
+                return "Ошибка данных";
+            OneFilter filter = SaveEquip.All_Filters[oldfilterID];
             switch (type)
             {
                 case "well":
-                    bool checkwell = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Location], oldfiltername);
-                    if (checkwell == true)
-                        return "Ошибка данных";
-                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.LocationsFile, oldfiltername, newfiltername);
+                    bool hassamewell = SaveEquip.CheckFilter(Values.Location, filter.Parent.StringID, newfiltername);
+                    if (hassamewell)
+                        return "Такая скважина уже есть";
+                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, filter, newfiltername);
                     break;
                 case "type":
-                    bool checktype = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Type], oldfiltername);
-                    if (checktype == true)
-                        return "Ошибка данных";
-                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.TypeFile, oldfiltername, newfiltername);
+                    bool hassametype = SaveEquip.CheckFilter(Values.Type, filter.Parent.StringID, newfiltername);
+                    if (hassametype)
+                        return "Такой тип оборудования уже есть";
+                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, filter, newfiltername);
                     break;
                 case "maker":
-                    bool checkmaker = SaveEquip.CheckFilter(SaveEquip.ValuesList[Values.Maker], oldfiltername);
-                    if (checkmaker == true)
-                        return "Ошибка данных";
-                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, SaveEquip.MakerFile, oldfiltername, newfiltername);
+                    bool hassamemaker = SaveEquip.CheckFilter(Values.Maker, filter.Parent.StringID, newfiltername);
+                    if (hassamemaker)
+                        return "Такой тип оборудования уже есть";
+                    SaveEquip.ChangeFilter(SaveEquip.Accounts[User.Identity.Name].Name, filter, newfiltername);
                     break;
             }
             return "";
